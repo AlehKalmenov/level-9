@@ -14,24 +14,31 @@ const int HASH_LEN = 33;        // Length of MD5 hash strings
 char * tryWord(char * plaintext, char * hashFilename)
 {
     // Hash the plaintext
-
+	char *pointer = md5(plaintext, strlen(plaintext));
     // Open the hash file
-
+	FILE *h = fopen(hashFilename, "r");
     // Loop through the hash file, one line at a time.
-
+	char hash[HASH_LEN];
+	while (fgets(hash, HASH_LEN, h)){
+		char *nl = strchr(hash, '\n');
+        if(nl) *nl = '\0';
     // Attempt to match the hash from the file to the
     // hash of the plaintext.
-
     // If there is a match, you'll return the hash.
     // If not, return NULL.
-
+		if (strcmp(pointer, hash) == 0){
+            fclose(h);
+            return pointer;
+        }
     // Before returning, do any needed cleanup:
     //   Close files?
     //   Free memory?
-
+	}
+	fclose(h);
+    free(pointer);
     // Modify this line so it returns the hash
     // that was found, or NULL if not found.
-    return "0123456789abcdef0123456789abcdef";
+    return 0;
 }
 
 
@@ -43,15 +50,30 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+	FILE *dictionary = fopen(argv[2], "r");
+	int cracked = 0;
     // These two lines exist for testing. When you have
     // tryWord working, it should display the hash for "hello",
     // which is 5d41402abc4b2a76b9719d911017c592.
     // Then you can remove these two lines and complete the rest
     // of the main function below.
-    char *found = tryWord("hello", "hashes00.txt");
-    printf("%s %s\n", found, "hello");
+	char word[PASS_LEN];
+	while(fgets(word, PASS_LEN, dictionary)){
+		char *nl = strchr(word, '\n');
+		if(nl) *nl = '\0';
+		char *found = tryWord(word, argv[1]);
+		
+		
+		
+		
+		
+		if(found){
+			printf("%s %s\n", found, word);
+			cracked++;
+			free(found);
+		}
 
-
+	}
     // Open the dictionary file for reading.
     
 
@@ -62,7 +84,8 @@ int main(int argc, char *argv[])
     //   5d41402abc4b2a76b9719d911017c592 hello
     
     // Close the dictionary file.
-
+	printf("%d hashes cracked\n", cracked);
+	fclose(dictionary);
     // Display the number of hashes that were cracked.
     
     // Free up any malloc'd memory?
